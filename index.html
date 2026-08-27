@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RydN WA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F172A; --card:#334155; --card-2:#F97316; --line:#FFFFFF;
+    --ink:#e8f0ea; --ink-dim:#e8f0ea; --wa:#0284C7; --wa-deep:#10B981;
+    --amber:#FFFFFF; --red:#e04040; --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;line-height:1.45;display:flex;justify-content:center;padding:14px 12px 130px}
+  .app{width:100%;max-width:430px}
+  .toolbar{display:flex;gap:6px;margin-bottom:12px}
+  .tab{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-dim);
+    font:600 12px/1 "Plus Jakarta Sans",sans-serif;padding:9px 4px;border-radius:9px;cursor:pointer;transition:.15s}
+  .tab:hover{color:var(--ink)}
+  .tab.on{background:var(--amber);border-color:var(--amber);color:#20160a}
+  .tab.danger{border-color:#4a2626;color:#d98a8a}
+  .tab.danger:hover{background:var(--red);border-color:var(--red);color:#fff}
+  .tab:focus-visible{outline:2px solid var(--wa);outline-offset:2px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.02em;text-align:center}
+  .sub{text-align:center;font-size:12px;color:var(--ink-dim);margin-top:2px}
+  .sub b{color:var(--wa);font-weight:700}
+  .ext{display:flex;align-items:center;gap:7px;margin-top:12px;padding:9px 11px;
+    border-radius:9px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--card-2)}
+  .ext .dot{width:7px;height:7px;border-radius:99px;background:var(--ink-dim);flex:none}
+  .ext.ok{border-color:#1e5136;color:var(--wa)} .ext.ok .dot{background:var(--wa)}
+  .ext.no{border-color:#5c3a22;color:var(--amber)} .ext.no .dot{background:var(--amber)}
+  .field{margin-top:16px}
+  label{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:12px;font-weight:700;color:var(--ink-dim);margin-bottom:6px}
+  label .hint{font-weight:500;font-size:11px}
+  textarea,input,select{width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:10px;
+    color:var(--ink);padding:11px 12px;font-family:inherit;font-size:14px;resize:vertical}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:var(--wa)}
+  #daftar{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;line-height:1.7}
+  .chipbar{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+  .chip{background:transparent;border:1px dashed var(--line);color:var(--ink-dim);
+    border-radius:999px;padding:4px 10px;font:600 11px/1.3 inherit;cursor:pointer}
+  .chip:hover{border-color:var(--wa);color:var(--wa)}
+  .row{display:flex;gap:10px} .row>*{flex:1}
+  .queue{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+  .queue-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .queue-head span{font-size:12px;font-weight:700;color:var(--ink-dim)}
+  .count{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink)}
+  .bar{height:4px;background:var(--card-2);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--wa);transition:width .3s}
+  .list{margin-top:10px;max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
+  .item{display:flex;align-items:center;gap:9px;background:var(--card-2);
+    border-left:3px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+  .item .no{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-dim)}
+  .item .nm{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .st{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim)}
+  .item.aktif{border-left-color:var(--amber);background:#241d10}
+  .item.aktif .st{color:var(--amber)}
+  .item.kirim{border-left-color:var(--wa)} .item.kirim .st{color:var(--wa)}
+  .item.gagal{border-left-color:var(--red);opacity:.65} .item.gagal .st{color:var(--red)}
+  .kosong{color:var(--ink-dim);font-size:12px;text-align:center;padding:14px 0}
+  .dock{position:fixed;left:0;right:0;bottom:0;padding:12px;
+    background:linear-gradient(to top,var(--bg) 70%,transparent);display:flex;justify-content:center}
+  .dock-in{width:100%;max-width:430px;display:flex;flex-direction:column;gap:8px}
+  .next{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:8px 12px;font-size:12px;color:var(--ink-dim);text-align:center;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .next b{color:var(--ink);font-weight:700}
+  .mini{display:flex;gap:8px}
+  .btn{border:none;border-radius:11px;font-family:inherit;font-weight:700;cursor:pointer;
+    padding:11px 14px;font-size:13px;transition:.15s}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .btn.ghost{flex:1;background:var(--card);border:1px solid var(--line);color:var(--ink-dim)}
+  .btn.ghost:hover{color:var(--ink);border-color:var(--ink-dim)}
+  .btn.warn{flex:1;background:#3a2418;border:1px solid #5c3a22;color:var(--amber)}
+  .btn.go{width:100%;background:linear-gradient(180deg,var(--wa),var(--wa-deep));color:#04160d;
+    font-size:16px;font-weight:800;padding:15px;box-shadow:0 6px 22px -8px var(--wa)}
+  .btn.go:disabled{filter:grayscale(.7);opacity:.5;cursor:not-allowed;box-shadow:none}
+  .btn.go small{display:block;font-size:11px;font-weight:600;opacity:.75}
+  .panel{display:none;margin-top:12px} .panel.on{display:block}
+  .tpl{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .tpl p{flex:1;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tpl button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:7px;
+    padding:4px 9px;font:600 11px inherit;cursor:pointer}
+  .note{font-size:11px;color:var(--ink-dim);margin-top:12px;line-height:1.6}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toolbar">
+    <button class="tab on" data-tab="kirim">Kirim</button>
+    <button class="tab" data-tab="template">Template</button>
+    <button class="tab" data-tab="riwayat">Riwayat</button>
+    <button class="tab danger" id="btnReset">Reset</button>
+  </div>
+
+  <div class="panel on" id="tab-kirim">
+    <div class="card">
+      <h1>Kirim WA Cepat</h1>
+      <p class="sub">Status: <b id="stat">siap</b> &middot; terkirim <span id="ter">0</span> dari <span id="tot">0</span></p>
+
+      <div class="ext" id="extBox"><span class="dot"></span><span id="extTxt">Mencari ekstensi&hellip;</span></div>
+
+      <div class="field">
+        <label>Pesan <span class="hint" id="charc">0 karakter</span></label>
+        <textarea id="pesan" rows="4">Halo {nama}, Taro text pesanmu disini</textarea>
+        <div class="chipbar">
+          <button class="chip" data-ins="{nama}">+ {nama}</button>
+          <button class="chip" data-ins="{nomor}">+ {nomor}</button>
+          <button class="chip" id="simpanTpl">Simpan jadi template</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Daftar nomor <span class="hint">format: nomor,nama &mdash; satu per baris</span></label>
+        <textarea id="daftar" rows="5" placeholder="08123456789,Budi
+6285712345678,Sari"></textarea>
+        <div class="chipbar"><span class="chip" id="valid" style="cursor:default">0 nomor terbaca</span></div>
+      </div>
+
+      <div class="field">
+        <label>Mode kirim</label>
+        <select id="mode">
+          <option value="auto">Otomatis &mdash; ekstensi yang menekan kirim (PC)</option>
+          <option value="manual">Manual &mdash; satu tap satu nomor (HP + auto-clicker)</option>
+        </select>
+      </div>
+
+      <div class="field row" id="rowJeda">
+        <div>
+          <label>Jeda min <span class="hint">detik</span></label>
+          <input type="number" id="dmin" value="5" min="2">
+        </div>
+        <div>
+          <label>Jeda maks <span class="hint">detik</span></label>
+          <input type="number" id="dmax" value="12" min="3">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Buka lewat <span class="hint">HP pilih aplikasi, PC pilih WhatsApp Web</span></label>
+        <select id="via">
+          <option value="auto">Otomatis sesuai perangkat</option>
+          <option value="app">Aplikasi WhatsApp</option>
+          <option value="web">WhatsApp Web</option>
+        </select>
+      </div>
+
+      <div class="queue">
+        <div class="queue-head"><span>Antrian</span><span class="count" id="cnt">0 / 0</span></div>
+        <div class="bar"><i id="prog"></i></div>
+        <div class="list" id="list"><p class="kosong">Belum ada nomor. Isi daftar di atas.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="tab-template">
+    <div class="card">
+      <h1 style="font-size:18px">Template pesan</h1>
+      <div id="tplList"></div>
+      <p class="note">Template hilang saat halaman ditutup.</p>
+    </div>
+  </div>
+
+  <div class="panel" id="tab-riwayat">
+    <div class="card">
+      <h1 style="font-size:18px">Riwayat sesi ini</h1>
+      <div id="logList"><p class="kosong">Belum ada aktivitas.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <div class="next" id="nextBox">Berikutnya: <b>&mdash;</b></div>
+    <div class="mini" id="miniBar" style="display:none">
+      <button class="btn ghost" id="btnLewat">Lewati nomor ini</button>
+      <button class="btn warn" id="btnJeda">Jeda</button>
+    </div>
+    <button class="btn go" id="btnMulai">MULAI KIRIM<small id="goSub">memeriksa ekstensi&hellip;</small></button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var antrian = [], jalan = false, ekstensi = false, manualIdx = -1, win = null;
+  var templates = ["Halo {nama}, terima kasih sudah order"], log = [];
+  function $(id){ return document.getElementById(id); }
+
+  /* ---------- jembatan ke ekstensi ---------- */
+  function kirimEkstensi(o){ o.source = "WABLAST"; window.postMessage(o, "*"); }
+
+  window.addEventListener("message", function(e){
+    if (e.source !== window) return;
+    var d = e.data;
+    if (!d || d.source !== "WABLAST_EXT") return;
+
+    if (d.type === "READY" && !ekstensi){ ekstensi = true; tandaEkstensi(); }
+    if (d.type === "DIMULAI"){ catat("Ekstensi mengambil alih " + d.total + " nomor."); }
+    if (d.type === "STATUS"){ setStatus(d.nomor, d.status); }
+    if (d.type === "DONE"){ selesai("selesai"); }
+    if (d.type === "DIJEDA"){ $("stat").textContent = "dijeda"; }
+    if (d.type === "BERHENTI"){
+      selesai("berhenti");
+      catat("Berhenti: " + d.alasan + ".");
+      alert(d.alasan === "belum login"
+        ? "WhatsApp Web belum login. Scan QR dulu di tab WhatsApp Web, lalu tekan MULAI KIRIM lagi."
+        : "Pengiriman berhenti: " + d.alasan);
+    }
+  });
+
+  kirimEkstensi({ type:"PING" });
+  setTimeout(tandaEkstensi, 1500);
+
+  function tandaEkstensi(){
+    var b = $("extBox"), manual = $("mode").value === "manual";
+
+    if (manual){
+      b.className = "ext no";
+      $("extTxt").textContent = "Mode manual \u2014 satu tap membuka satu nomor";
+      return;
+    }
+    if (ekstensi){
+      b.className = "ext ok";
+      $("extTxt").textContent = "Ekstensi aktif \u2014 kirim otomatis penuh";
+      $("goSub").textContent = "chat dibuka dan dikirim otomatis";
+    } else {
+      b.className = "ext no";
+      $("extTxt").textContent = "Ekstensi tidak terdeteksi \u2014 pilih mode manual";
+      $("goSub").textContent = "atau pasang ekstensi di Chrome PC";
+    }
+  }
+
+  /* ---------- tab ---------- */
+  document.querySelectorAll(".tab[data-tab]").forEach(function(t){
+    t.addEventListener("click", function(){
+      document.querySelectorAll(".tab[data-tab]").forEach(function(x){ x.classList.remove("on"); });
+      document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("on"); });
+      t.classList.add("on"); $("tab-"+t.dataset.tab).classList.add("on");
+    });
+  });
+
+  /* ---------- nomor ---------- */
+  function normalkan(raw){
+    var n = String(raw).replace(/[^0-9+]/g,"").replace(/\+/g,"");
+    if (String(raw).trim().indexOf("0") === 0) n = "62" + n.slice(1);
+    else if (n.indexOf("8") === 0) n = "62" + n;
+    if (n.length < 9 || n.length > 15) return null;
+    return n;
+  }
+
+  function baca(){
+    var lama = {};
+    antrian.forEach(function(a){ lama[a.nomor] = a.status; });
+    var hasil = [];
+    $("daftar").value.split("\n").forEach(function(b){
+      if (!b.trim()) return;
+      var p = b.split(","), nomor = normalkan(p[0]);
+      if (!nomor) return;
+      hasil.push({ nomor:nomor, nama:(p[1]||"").trim()||"Kak", status:lama[nomor]||"menunggu" });
+    });
+    antrian = hasil;
+    $("valid").textContent = antrian.length + " nomor terbaca";
+    gambar();
+  }
+
+  function setStatus(nomor, status){
+    for (var i=0;i<antrian.length;i++){
+      if (antrian[i].nomor === nomor){ antrian[i].status = status; break; }
+    }
+    if (status !== "membuka") catat(nomor + " \u2014 " + status);
+    gambar();
+  }
+
+  function kelas(s){
+    if (s === "terkirim") return "kirim";
+    if (s === "membuka") return "aktif";
+    if (s === "menunggu") return "";
+    return "gagal";
+  }
+
+  function gambar(){
+    var box = $("list");
+    if (!antrian.length){
+      box.innerHTML = '<p class="kosong">Belum ada nomor. Isi daftar di atas.</p>';
+    } else {
+      box.innerHTML = "";
+      antrian.forEach(function(a){
+        var d = document.createElement("div");
+        d.className = "item " + kelas(a.status);
+        d.innerHTML = '<span class="no">'+a.nomor+'</span><span class="nm">'+esc(a.nama)+
+                      '</span><span class="st">'+a.status+'</span>';
+        box.appendChild(d);
+      });
+    }
+    var beres = antrian.filter(function(a){ return a.status!=="menunggu" && a.status!=="membuka"; }).length;
+    var sukses = antrian.filter(function(a){ return a.status==="terkirim"; }).length;
+    $("cnt").textContent = beres + " / " + antrian.length;
+    $("tot").textContent = antrian.length;
+    $("ter").textContent = sukses;
+    $("prog").style.width = antrian.length ? (beres/antrian.length*100)+"%" : "0";
+    $("btnMulai").disabled = antrian.length === 0;
+    if (typeof sisaBerikutnya === "function") sisaBerikutnya();
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function catat(t){
+    log.unshift(new Date().toLocaleTimeString("id-ID") + " \u2014 " + t);
+    $("logList").innerHTML = log.slice(0,80).map(function(l){
+      return '<div class="tpl"><p>'+esc(l)+'</p></div>'; }).join("");
+  }
+
+  function teksUntuk(a){
+    return $("pesan").value.replace(/\{nama\}/gi,a.nama).replace(/\{nomor\}/gi,a.nomor);
+  }
+
+  function selesai(kata){
+    jalan = false; manualIdx = -1;
+    $("miniBar").style.display = "none";
+    $("stat").textContent = kata;
+    $("btnMulai").firstChild.nodeValue = "MULAI KIRIM";
+    tandaEkstensi();
+    gambar();
+  }
+
+  /* ---------- mode manual / HP ---------- */
+  var HP = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  function modeAuto(){ return $("mode").value === "auto" && ekstensi; }
+
+  function pakaiApp(){
+    var v = $("via").value;
+    return v === "app" || (v === "auto" && HP);
+  }
+
+  function terapkanMode(){
+    var manual = $("mode").value === "manual";
+    $("rowJeda").style.display = manual ? "none" : "flex";
+    if (manual){
+      $("miniBar").style.display = jalan ? "flex" : "none";
+      $("btnJeda").style.display = "none";
+    } else {
+      $("btnJeda").style.display = "";
+    }
+    tandaEkstensi();
+    sisaBerikutnya();
+  }
+
+  function targetBerikutnya(){
+    for (var i = 0; i < antrian.length; i++)
+      if (antrian[i].status === "menunggu") return antrian[i];
+    return null;
+  }
+
+  function manualBerikutnya(){
+    var i = manualIdx + 1;
+    while (i < antrian.length && antrian[i].status !== "menunggu") i++;
+    if (i >= antrian.length){ selesai("selesai"); return; }
+    manualIdx = i;
+    var a = antrian[i], teks = encodeURIComponent(teksUntuk(a));
+
+    if (pakaiApp()){
+      location.href = "whatsapp://send?phone=" + a.nomor + "&text=" + teks;
+    } else {
+      win = window.open("https://web.whatsapp.com/send?phone="+a.nomor+"&text="+teks, "wa_kirim");
+    }
+
+    a.status = "terkirim";
+    catat("Dibuka: " + a.nama + " (" + a.nomor + ")");
+    gambar();
+    sisaBerikutnya();
+  }
+
+  function sisaBerikutnya(){
+    var t = targetBerikutnya();
+    var sisa = antrian.filter(function(a){ return a.status === "menunggu"; }).length;
+
+    $("nextBox").innerHTML = t
+      ? "Berikutnya: <b>" + esc(t.nama) + "</b> \u00b7 " + t.nomor
+      : "Berikutnya: <b>\u2014</b>";
+
+    if (modeAuto()) return;
+
+    if (!jalan){
+      $("btnMulai").firstChild.nodeValue = "MULAI KIRIM";
+    } else {
+      $("btnMulai").firstChild.nodeValue = sisa ? "KIRIM BERIKUTNYA" : "SELESAI";
+    }
+    $("goSub").textContent = sisa
+      ? ("sisa " + sisa + " nomor \u00b7 tekan sekali per nomor")
+      : "semua nomor sudah dibuka";
+  }
+
+  /* ---------- tombol ---------- */
+  $("btnMulai").addEventListener("click", function(){
+    baca();
+    if (!antrian.length) return;
+
+    if (modeAuto()){
+      if (jalan) return;
+      jalan = true;
+      $("miniBar").style.display = "flex";
+      $("btnJeda").textContent = "Jeda";
+      $("stat").textContent = "berjalan";
+      $("btnMulai").firstChild.nodeValue = "SEDANG BERJALAN";
+      $("goSub").textContent = "jangan tutup tab WhatsApp Web";
+      kirimEkstensi({
+        type:"START",
+        gapMin: Math.max(2, parseInt($("dmin").value,10)||5),
+        gapMax: Math.max(3, parseInt($("dmax").value,10)||12),
+        items: antrian.filter(function(a){ return a.status==="menunggu"; })
+                      .map(function(a){ return {nomor:a.nomor,nama:a.nama,teks:teksUntuk(a)}; })
+      });
+    } else {
+      if (!jalan){ jalan = true; $("miniBar").style.display="flex"; $("btnJeda").style.display="none"; }
+      manualBerikutnya();
+    }
+  });
+
+  $("btnJeda").addEventListener("click", function(){
+    if (!ekstensi) return;
+    if ($("btnJeda").textContent === "Jeda"){
+      kirimEkstensi({type:"JEDA"}); $("btnJeda").textContent = "Lanjutkan";
+    } else {
+      kirimEkstensi({type:"LANJUTKAN"}); $("btnJeda").textContent = "Jeda"; $("stat").textContent = "berjalan";
+    }
+  });
+
+  $("btnLewat").addEventListener("click", function(){
+    if (ekstensi){ kirimEkstensi({type:"LEWATI"}); return; }
+    if (manualIdx >= 0){ antrian[manualIdx].status = "dilewati"; gambar(); }
+    manualBerikutnya();
+  });
+
+  $("btnReset").addEventListener("click", function(){
+    kirimEkstensi({type:"STOP"});
+    antrian.forEach(function(a){ a.status = "menunggu"; });
+    $("btnJeda").style.display = "";
+    selesai("siap");
+    catat("Antrian direset.");
+  });
+
+  /* ---------- template ---------- */
+  document.querySelectorAll(".chip[data-ins]").forEach(function(c){
+    c.addEventListener("click", function(){
+      var t = $("pesan"), p = t.selectionStart;
+      t.value = t.value.slice(0,p) + c.dataset.ins + t.value.slice(t.selectionEnd);
+      t.focus(); t.selectionStart = t.selectionEnd = p + c.dataset.ins.length; huruf();
+    });
+  });
+
+  $("simpanTpl").addEventListener("click", function(){
+    var v = $("pesan").value.trim();
+    if (!v || templates.indexOf(v) > -1) return;
+    templates.push(v); gambarTpl(); catat("Template disimpan.");
+  });
+
+  function gambarTpl(){
+    $("tplList").innerHTML = templates.map(function(t,i){
+      return '<div class="tpl"><p>'+esc(t)+'</p><button data-t="'+i+'">Pakai</button></div>'; }).join("");
+    $("tplList").querySelectorAll("button").forEach(function(b){
+      b.addEventListener("click", function(){
+        $("pesan").value = templates[b.dataset.t]; huruf();
+        document.querySelector('.tab[data-tab="kirim"]').click();
+      });
+    });
+  }
+
+  function huruf(){ $("charc").textContent = $("pesan").value.length + " karakter"; }
+  $("pesan").addEventListener("input", huruf);
+  $("daftar").addEventListener("input", baca);
+  $("mode").addEventListener("change", terapkanMode);
+  $("via").addEventListener("change", sisaBerikutnya);
+
+  $("mode").value = HP ? "manual" : "auto";
+  gambarTpl(); huruf(); baca(); terapkanMode();
+})();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"db99c1a629dd413996626019fb16ce52","r":1}' crossorigin="anonymous"></script>
+</body>
+</html>
